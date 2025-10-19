@@ -1,0 +1,137 @@
+name: 跨平台打包砖了个砖游戏
+
+# 触发条件：当推送代码到main分支或创建pull request时
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  # 也可以手动触发
+  workflow_dispatch:
+
+jobs:
+  # Windows平台构建
+  build-windows:
+    runs-on: windows-latest
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+      
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller numpy
+        
+    - name: 构建Windows可执行文件
+      run: |
+        pyinstaller --onefile --windowed --name="砖了个砖游戏-Windows" --add-data "*.png;." 砖了个砖.py
+        
+    - name: 上传Windows构建产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-executable
+        path: dist/砖了个砖游戏-Windows.exe
+
+  # macOS平台构建
+  build-macos:
+    runs-on: macos-latest
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+      
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller numpy
+        
+    - name: 构建macOS可执行文件
+      run: |
+        pyinstaller --onefile --windowed --name="砖了个砖游戏-macOS" --add-data "*.png:." 砖了个砖.py
+        
+    - name: 上传macOS构建产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: macos-executable
+        path: |
+          dist/砖了个砖游戏-macOS.app
+          dist/砖了个砖游戏-macOS
+
+  # Linux平台构建
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v3
+      
+    - name: 设置Python环境
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+        
+    - name: 安装系统依赖
+      run: |
+        sudo apt-get update
+        sudo apt-get install python3-tk
+        
+    - name: 安装Python依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyinstaller numpy
+        
+    - name: 构建Linux可执行文件
+      run: |
+        pyinstaller --onefile --windowed --name="砖了个砖游戏-Linux" --add-data "*.png:." 砖了个砖.py
+        
+    - name: 上传Linux构建产物
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-executable
+        path: dist/砖了个砖游戏-Linux
+
+  # 创建发布版本（可选）
+  create-release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+    
+    steps:
+    - name: 下载所有构建产物
+      uses: actions/download-artifact@v3
+      
+    - name: 创建发布
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ github.run_number }}
+        name: 砖了个砖游戏 v${{ github.run_number }}
+        body: |
+          ## 砖了个砖游戏自动构建版本
+          
+          ### 下载说明
+          - **Windows用户**: 下载 `砖了个砖游戏-Windows.exe`
+          - **macOS用户**: 下载 `砖了个砖游戏-macOS.app` 或 `砖了个砖游戏-macOS`
+          - **Linux用户**: 下载 `砖了个砖游戏-Linux`
+          
+          ### 功能特点
+          - 基于A*搜索算法的智能求解
+          - 支持自定义水果移动代价
+          - 可视化路径演示
+          - 支持4x4到8x8多种棋盘大小
+          
+          构建时间: ${{ github.event.head_commit.timestamp }}
+          提交哈希: ${{ github.sha }}
+        files: |
+          windows-executable/*
+          macos-executable/*
+          linux-executable/*
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
