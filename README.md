@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 砖了个砖游戏
 
 基于A*搜索算法的智能水果消除游戏。
@@ -82,3 +83,7 @@ python 砖了个砖.py
 ## 贡献
 
 欢迎提交Issue和Pull Request来改进这个项目！
+=======
+# fruit-elimination-game
+基于A*算法的智能水果消除游戏 - Fruit Elimination Game with A* Algorithm
+>>>>>>> 32e858aca8f0029dd612764e1270c3c3db7bc68a
