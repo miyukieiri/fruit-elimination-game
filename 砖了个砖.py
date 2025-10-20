@@ -556,22 +556,23 @@ class FruitBoardApp:
             self.status_label.config(text=text)
 
 
-root = tk.Tk()
-app = FruitBoardApp(root)
-root.mainloop()
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = FruitBoardApp(root)
+    root.mainloop()
 
-board = np.array(app.board)
-costs = app.custom_costs
-result = A_star(board, costs)
-if result != 'No solution found':
-    moves = []
-    node = result
-    while node.parent is not None:
-        moves.append(node.move)
-        node = node.parent
-    moves.reverse()
-    print("Moves to solve the board:")
-    for move in moves:
-        print(move)
-else:
-    print(result)
+    board = np.array(app.board)
+    costs = app.custom_costs
+    result = A_star(board, costs)
+    if result != 'No solution found':
+        moves = []
+        node = result
+        while node.parent is not None:
+            moves.append(node.move)
+            node = node.parent
+        moves.reverse()
+        print("Moves to solve the board:")
+        for move in moves:
+            print(move)
+    else:
+        print(result)

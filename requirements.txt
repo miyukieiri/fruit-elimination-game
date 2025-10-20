@@ -1,4 +1,2 @@
 numpy
-tkinter
-Pillow
 pyinstaller
