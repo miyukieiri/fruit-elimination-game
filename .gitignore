@@ -22,7 +22,8 @@ wheels/
 
 # PyInstaller
 *.manifest
-*.spec
+# 保留我们的自定义spec文件
+# *.spec
 
 # 虚拟环境
 .env
